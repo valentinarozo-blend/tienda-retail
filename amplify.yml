@@ -8,14 +8,19 @@ frontend:
 
     build:
       commands:
-        - echo "Region = $APP_REGION"
-        - SERVICE_ARN=$(aws apprunner list-services --region $APP_REGION --query "ServiceSummaryList[?ServiceName=='$APPRUNNER_SERVICE_NAME'].ServiceArn" --output text)
+        # Usar variable o fallback hardcodeado
+        - REGION=${APP_REGION:-us-east-1}
+        - ACCOUNT=${APP_ACCOUNT_ID:-526156223487}
+        - SERVICE=${APPRUNNER_SERVICE_NAME:-tienda-retail-app}
+        - echo "Region = $REGION"
+        - echo "Account = $ACCOUNT"
+        - SERVICE_ARN=$(aws apprunner list-services --region $REGION --query "ServiceSummaryList[?ServiceName=='$SERVICE'].ServiceArn" --output text)
         - echo "Service ARN = $SERVICE_ARN"
         - >
           if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
-            aws apprunner create-service --service-name $APPRUNNER_SERVICE_NAME --source-configuration "{\"CodeRepository\":{\"RepositoryUrl\":\"https://github.com/valentinarozo-blend/tienda-retail\",\"SourceCodeVersion\":{\"Type\":\"BRANCH\",\"Value\":\"main\"},\"CodeConfiguration\":{\"ConfigurationSource\":\"API\",\"CodeConfigurationValues\":{\"Runtime\":\"PYTHON_3\",\"BuildCommand\":\"pip install -r requirements.txt\",\"StartCommand\":\"streamlit run Tienda_Retail.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true\",\"Port\":\"8080\",\"RuntimeEnvironmentVariables\":{\"AWS_REGION\":\"$APP_REGION\",\"COGNITO_USER_POOL_ID\":\"$COGNITO_USER_POOL_ID\",\"COGNITO_APP_CLIENT_ID\":\"$COGNITO_APP_CLIENT_ID\",\"DYNAMO_TABLE_PEDIDOS\":\"$DYNAMO_TABLE_PEDIDOS\",\"DYNAMO_TABLE_PRODUCTOS\":\"$DYNAMO_TABLE_PRODUCTOS\",\"S3_BUCKET_COMPROBANTES\":\"$S3_BUCKET_COMPROBANTES\"}}}},\"AutoDeploymentsEnabled\":true,\"AuthenticationConfiguration\":{\"ConnectionArn\":\"$APPRUNNER_CONNECTION_ARN\"}}" --instance-configuration "{\"Cpu\":\"1 vCPU\",\"Memory\":\"2 GB\",\"InstanceRoleArn\":\"$APPRUNNER_INSTANCE_ROLE_ARN\"}" --region $APP_REGION;
+            aws apprunner create-service --service-name $SERVICE --source-configuration "{\"CodeRepository\":{\"RepositoryUrl\":\"https://github.com/valentinarozo-blend/tienda-retail\",\"SourceCodeVersion\":{\"Type\":\"BRANCH\",\"Value\":\"main\"},\"CodeConfiguration\":{\"ConfigurationSource\":\"API\",\"CodeConfigurationValues\":{\"Runtime\":\"PYTHON_3\",\"BuildCommand\":\"pip install -r requirements.txt\",\"StartCommand\":\"streamlit run Tienda_Retail.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true\",\"Port\":\"8080\",\"RuntimeEnvironmentVariables\":{\"AWS_REGION\":\"$REGION\",\"COGNITO_USER_POOL_ID\":\"$COGNITO_USER_POOL_ID\",\"COGNITO_APP_CLIENT_ID\":\"$COGNITO_APP_CLIENT_ID\",\"DYNAMO_TABLE_PEDIDOS\":\"$DYNAMO_TABLE_PEDIDOS\",\"DYNAMO_TABLE_PRODUCTOS\":\"$DYNAMO_TABLE_PRODUCTOS\",\"S3_BUCKET_COMPROBANTES\":\"$S3_BUCKET_COMPROBANTES\"}}}},\"AutoDeploymentsEnabled\":true,\"AuthenticationConfiguration\":{\"ConnectionArn\":\"$APPRUNNER_CONNECTION_ARN\"}}" --instance-configuration "{\"Cpu\":\"1 vCPU\",\"Memory\":\"2 GB\",\"InstanceRoleArn\":\"$APPRUNNER_INSTANCE_ROLE_ARN\"}" --region $REGION;
           else
-            aws apprunner start-deployment --service-arn $SERVICE_ARN --region $APP_REGION;
+            aws apprunner start-deployment --service-arn $SERVICE_ARN --region $REGION;
           fi
 
     postBuild:
