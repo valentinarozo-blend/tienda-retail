@@ -3,48 +3,40 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Instalar Docker CLI via amazon-linux-extras (disponible en Amplify)
-        - amazon-linux-extras install docker -y || true
-        - nohup dockerd &>/tmp/dockerd.log & sleep 5
-        # Login ECR
-        - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-        # Crear repo ECR si no existe
-        - aws ecr describe-repositories --repository-names $ECR_REPO_NAME --region $AWS_REGION 2>/dev/null || aws ecr create-repository --repository-name $ECR_REPO_NAME --region $AWS_REGION
+        - docker --version
+        - aws ecr get-login-password --region $APP_REGION | docker login --username AWS --password-stdin $APP_ACCOUNT_ID.dkr.ecr.$APP_REGION.amazonaws.com
+        - aws ecr describe-repositories --repository-names $ECR_REPO_NAME --region $APP_REGION 2>/dev/null || aws ecr create-repository --repository-name $ECR_REPO_NAME --region $APP_REGION
 
     build:
       commands:
         - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
-        - ECR_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME
+        - ECR_URI=$APP_ACCOUNT_ID.dkr.ecr.$APP_REGION.amazonaws.com/$ECR_REPO_NAME
         - docker build -t $ECR_URI:$IMAGE_TAG -t $ECR_URI:latest .
         - docker push $ECR_URI:$IMAGE_TAG
         - docker push $ECR_URI:latest
-        - echo "ECR_URI=$ECR_URI" > deploy.env
-        - echo "IMAGE_TAG=$IMAGE_TAG" >> deploy.env
 
     postBuild:
       commands:
-        - source deploy.env
         - |
-          SERVICE_ARN=$(aws apprunner list-services --region $AWS_REGION \
+          SERVICE_ARN=$(aws apprunner list-services --region $APP_REGION \
             --query "ServiceSummaryList[?ServiceName=='$APPRUNNER_SERVICE_NAME'].ServiceArn" \
             --output text)
         - |
           if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
-            echo "Creando servicio App Runner..."
             aws apprunner create-service \
               --service-name $APPRUNNER_SERVICE_NAME \
               --source-configuration "{
                 \"ImageRepository\": {
-                  \"ImageIdentifier\": \"$ECR_URI:latest\",
+                  \"ImageIdentifier\": \"$APP_ACCOUNT_ID.dkr.ecr.$APP_REGION.amazonaws.com/$ECR_REPO_NAME:latest\",
                   \"ImageConfiguration\": {
                     \"Port\": \"8501\",
                     \"RuntimeEnvironmentVariables\": {
-                      \"AWS_REGION\":                  \"$AWS_REGION\",
-                      \"COGNITO_USER_POOL_ID\":        \"$COGNITO_USER_POOL_ID\",
-                      \"COGNITO_APP_CLIENT_ID\":       \"$COGNITO_APP_CLIENT_ID\",
-                      \"DYNAMO_TABLE_PEDIDOS\":        \"$DYNAMO_TABLE_PEDIDOS\",
-                      \"DYNAMO_TABLE_PRODUCTOS\":      \"$DYNAMO_TABLE_PRODUCTOS\",
-                      \"S3_BUCKET_COMPROBANTES\":      \"$S3_BUCKET_COMPROBANTES\"
+                      \"AWS_REGION\":               \"$APP_REGION\",
+                      \"COGNITO_USER_POOL_ID\":     \"$COGNITO_USER_POOL_ID\",
+                      \"COGNITO_APP_CLIENT_ID\":    \"$COGNITO_APP_CLIENT_ID\",
+                      \"DYNAMO_TABLE_PEDIDOS\":     \"$DYNAMO_TABLE_PEDIDOS\",
+                      \"DYNAMO_TABLE_PRODUCTOS\":   \"$DYNAMO_TABLE_PRODUCTOS\",
+                      \"S3_BUCKET_COMPROBANTES\":   \"$S3_BUCKET_COMPROBANTES\"
                     }
                   },
                   \"ImageRepositoryType\": \"ECR\"
@@ -59,15 +51,12 @@ frontend:
                 \"Memory\": \"2 GB\",
                 \"InstanceRoleArn\": \"$APPRUNNER_INSTANCE_ROLE_ARN\"
               }" \
-              --region $AWS_REGION
+              --region $APP_REGION
           else
-            echo "Actualizando servicio App Runner existente: $SERVICE_ARN"
-            aws apprunner start-deployment \
-              --service-arn $SERVICE_ARN \
-              --region $AWS_REGION
+            aws apprunner start-deployment --service-arn $SERVICE_ARN --region $APP_REGION
           fi
 
   artifacts:
     baseDirectory: .
     files:
-      - deploy.env
+      - "**/*"
