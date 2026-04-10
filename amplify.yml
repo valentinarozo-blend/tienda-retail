@@ -3,47 +3,49 @@ frontend:
   phases:
     preBuild:
       commands:
-        - docker --version
-        - aws ecr get-login-password --region $APP_REGION | docker login --username AWS --password-stdin $APP_ACCOUNT_ID.dkr.ecr.$APP_REGION.amazonaws.com
-        - aws ecr describe-repositories --repository-names $ECR_REPO_NAME --region $APP_REGION 2>/dev/null || aws ecr create-repository --repository-name $ECR_REPO_NAME --region $APP_REGION
+        - python3 --version
+        - pip install -r requirements.txt
 
     build:
       commands:
-        - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
-        - ECR_URI=$APP_ACCOUNT_ID.dkr.ecr.$APP_REGION.amazonaws.com/$ECR_REPO_NAME
-        - docker build -t $ECR_URI:$IMAGE_TAG -t $ECR_URI:latest .
-        - docker push $ECR_URI:$IMAGE_TAG
-        - docker push $ECR_URI:latest
-
-    postBuild:
-      commands:
+        # Crear o actualizar servicio App Runner desde código fuente (sin Docker)
         - |
           SERVICE_ARN=$(aws apprunner list-services --region $APP_REGION \
             --query "ServiceSummaryList[?ServiceName=='$APPRUNNER_SERVICE_NAME'].ServiceArn" \
             --output text)
         - |
           if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
+            echo "Creando servicio App Runner desde código fuente..."
             aws apprunner create-service \
               --service-name $APPRUNNER_SERVICE_NAME \
               --source-configuration "{
-                \"ImageRepository\": {
-                  \"ImageIdentifier\": \"$APP_ACCOUNT_ID.dkr.ecr.$APP_REGION.amazonaws.com/$ECR_REPO_NAME:latest\",
-                  \"ImageConfiguration\": {
-                    \"Port\": \"8501\",
-                    \"RuntimeEnvironmentVariables\": {
-                      \"AWS_REGION\":               \"$APP_REGION\",
-                      \"COGNITO_USER_POOL_ID\":     \"$COGNITO_USER_POOL_ID\",
-                      \"COGNITO_APP_CLIENT_ID\":    \"$COGNITO_APP_CLIENT_ID\",
-                      \"DYNAMO_TABLE_PEDIDOS\":     \"$DYNAMO_TABLE_PEDIDOS\",
-                      \"DYNAMO_TABLE_PRODUCTOS\":   \"$DYNAMO_TABLE_PRODUCTOS\",
-                      \"S3_BUCKET_COMPROBANTES\":   \"$S3_BUCKET_COMPROBANTES\"
-                    }
+                \"CodeRepository\": {
+                  \"RepositoryUrl\": \"https://github.com/valentinarozo-blend/tienda-retail\",
+                  \"SourceCodeVersion\": {
+                    \"Type\": \"BRANCH\",
+                    \"Value\": \"main\"
                   },
-                  \"ImageRepositoryType\": \"ECR\"
+                  \"CodeConfiguration\": {
+                    \"ConfigurationSource\": \"API\",
+                    \"CodeConfigurationValues\": {
+                      \"Runtime\": \"PYTHON_3\",
+                      \"BuildCommand\": \"pip install -r requirements.txt\",
+                      \"StartCommand\": \"streamlit run Tienda_Retail.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true\",
+                      \"Port\": \"8080\",
+                      \"RuntimeEnvironmentVariables\": {
+                        \"AWS_REGION\":             \"$APP_REGION\",
+                        \"COGNITO_USER_POOL_ID\":   \"$COGNITO_USER_POOL_ID\",
+                        \"COGNITO_APP_CLIENT_ID\":  \"$COGNITO_APP_CLIENT_ID\",
+                        \"DYNAMO_TABLE_PEDIDOS\":   \"$DYNAMO_TABLE_PEDIDOS\",
+                        \"DYNAMO_TABLE_PRODUCTOS\": \"$DYNAMO_TABLE_PRODUCTOS\",
+                        \"S3_BUCKET_COMPROBANTES\": \"$S3_BUCKET_COMPROBANTES\"
+                      }
+                    }
+                  }
                 },
-                \"AutoDeploymentsEnabled\": false,
+                \"AutoDeploymentsEnabled\": true,
                 \"AuthenticationConfiguration\": {
-                  \"AccessRoleArn\": \"$APPRUNNER_ECR_ROLE_ARN\"
+                  \"ConnectionArn\": \"$APPRUNNER_CONNECTION_ARN\"
                 }
               }" \
               --instance-configuration "{
@@ -53,8 +55,12 @@ frontend:
               }" \
               --region $APP_REGION
           else
-            aws apprunner start-deployment --service-arn $SERVICE_ARN --region $APP_REGION
+            echo "Servicio ya existe, App Runner auto-despliega desde GitHub."
           fi
+
+    postBuild:
+      commands:
+        - echo "✅ Pipeline completado. App Runner despliega automáticamente desde GitHub."
 
   artifacts:
     baseDirectory: .
