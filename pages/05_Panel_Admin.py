@@ -235,6 +235,29 @@ with tab_inventario:
             use_container_width=True
         )
 
+    # ── Generador de descripción con Nova Pro ─────────────────────────────────
+    st.divider()
+    st.markdown("#### ✨ Generar descripción de producto con Nova Pro")
+    st.caption("Powered by `amazon.nova-pro-v1:0`")
+
+    with st.container(border=True):
+        col_d1, col_d2, col_d3 = st.columns(3)
+        with col_d1:
+            desc_nombre = st.text_input("Nombre del producto", placeholder="Ej: Chaqueta Cuero Premium")
+        with col_d2:
+            desc_cat = st.selectbox("Categoría", ["Ropa", "Calzado", "Accesorios"], key="desc_cat")
+        with col_d3:
+            desc_precio = st.number_input("Precio ($)", min_value=0, step=1000, value=49990, key="desc_precio")
+
+        if st.button("✨ Generar descripción", type="primary", disabled=not desc_nombre):
+            with st.spinner("Nova Pro escribiendo descripción..."):
+                descripcion = generar_descripcion_producto(desc_nombre, desc_cat, desc_precio)
+            st.session_state["ultima_descripcion"] = descripcion
+
+        if "ultima_descripcion" in st.session_state:
+            st.success(st.session_state["ultima_descripcion"])
+            st.caption("Copia este texto para usarlo en tu catálogo o redes sociales.")
+
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 3 — PEDIDOS
 # ══════════════════════════════════════════════════════════════════════════════
