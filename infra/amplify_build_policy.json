@@ -1,5 +1,4 @@
 {
-  "Comment": "Política IAM para el rol de build de Amplify (adjuntar al service role de Amplify)",
   "Version": "2012-10-17",
   "Statement": [
     {

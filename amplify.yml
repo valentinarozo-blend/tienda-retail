@@ -3,8 +3,13 @@ frontend:
   phases:
     preBuild:
       commands:
+        # Instalar Docker CLI via amazon-linux-extras (disponible en Amplify)
+        - amazon-linux-extras install docker -y || true
+        - nohup dockerd &>/tmp/dockerd.log & sleep 5
+        # Login ECR
         - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-        - aws ecr describe-repositories --repository-names $ECR_REPO_NAME --region $AWS_REGION || aws ecr create-repository --repository-name $ECR_REPO_NAME --region $AWS_REGION
+        # Crear repo ECR si no existe
+        - aws ecr describe-repositories --repository-names $ECR_REPO_NAME --region $AWS_REGION 2>/dev/null || aws ecr create-repository --repository-name $ECR_REPO_NAME --region $AWS_REGION
 
     build:
       commands:
@@ -13,15 +18,19 @@ frontend:
         - docker build -t $ECR_URI:$IMAGE_TAG -t $ECR_URI:latest .
         - docker push $ECR_URI:$IMAGE_TAG
         - docker push $ECR_URI:latest
+        - echo "ECR_URI=$ECR_URI" > deploy.env
+        - echo "IMAGE_TAG=$IMAGE_TAG" >> deploy.env
 
     postBuild:
       commands:
+        - source deploy.env
         - |
           SERVICE_ARN=$(aws apprunner list-services --region $AWS_REGION \
             --query "ServiceSummaryList[?ServiceName=='$APPRUNNER_SERVICE_NAME'].ServiceArn" \
             --output text)
         - |
-          if [ -z "$SERVICE_ARN" ]; then
+          if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
+            echo "Creando servicio App Runner..."
             aws apprunner create-service \
               --service-name $APPRUNNER_SERVICE_NAME \
               --source-configuration "{
@@ -52,10 +61,13 @@ frontend:
               }" \
               --region $AWS_REGION
           else
-            aws apprunner start-deployment --service-arn $SERVICE_ARN --region $AWS_REGION
+            echo "Actualizando servicio App Runner existente: $SERVICE_ARN"
+            aws apprunner start-deployment \
+              --service-arn $SERVICE_ARN \
+              --region $AWS_REGION
           fi
 
   artifacts:
     baseDirectory: .
     files:
-      - "**/*"
+      - deploy.env

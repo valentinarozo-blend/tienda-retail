@@ -4,7 +4,7 @@
     {
       "Effect": "Allow",
       "Principal": {
-        "Service": "build.apprunner.amazonaws.com"
+        "Service": "amplify.amazonaws.com"
       },
       "Action": "sts:AssumeRole"
     }
