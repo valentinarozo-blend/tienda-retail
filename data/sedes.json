@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "nombre": "Sede Centro",
+    "direccion": "Av. Principal 123, Santiago Centro",
+    "horario": "Lun-Vie 9:00-20:00, Sáb 10:00-18:00",
+    "lat": -33.4489,
+    "lon": -70.6693,
+    "telefono": "+56 2 2345 6789",
+    "color": [233, 69, 96]
+  },
+  {
+    "id": 2,
+    "nombre": "Sede Providencia",
+    "direccion": "Av. Providencia 456, Providencia",
+    "horario": "Lun-Vie 9:00-21:00, Sáb-Dom 10:00-19:00",
+    "lat": -33.4317,
+    "lon": -70.6147,
+    "telefono": "+56 2 2345 6790",
+    "color": [233, 69, 96]
+  },
+  {
+    "id": 3,
+    "nombre": "Sede Las Condes",
+    "direccion": "Av. Apoquindo 789, Las Condes",
+    "horario": "Lun-Dom 10:00-21:00",
+    "lat": -33.4103,
+    "lon": -70.5777,
+    "telefono": "+56 2 2345 6791",
+    "color": [233, 69, 96]
+  },
+  {
+    "id": 4,
+    "nombre": "Sede Maipú",
+    "direccion": "Av. Pajaritos 321, Maipú",
+    "horario": "Lun-Sáb 9:00-20:00",
+    "lat": -33.5115,
+    "lon": -70.7580,
+    "telefono": "+56 2 2345 6792",
+    "color": [233, 69, 96]
+  }
+]

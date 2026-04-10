@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+*.egg-info/
+dist/
+build/
+image_uri.env
+
+# Datos sensibles — no subir al repo
+data/usuarios.json
+data/pedidos.json

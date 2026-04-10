@@ -1,0 +1,36 @@
+{
+  "Comment": "Política IAM para que App Runner acceda a ECR",
+  "AssumeRolePolicyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "build.apprunner.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  },
+  "Policies": [
+    {
+      "PolicyName": "AppRunnerECRAccess",
+      "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "ecr:GetDownloadUrlForLayer",
+              "ecr:BatchGetImage",
+              "ecr:DescribeImages",
+              "ecr:GetAuthorizationToken",
+              "ecr:BatchCheckLayerAvailability"
+            ],
+            "Resource": "*"
+          }
+        ]
+      }
+    }
+  ]
+}

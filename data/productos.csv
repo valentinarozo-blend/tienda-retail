@@ -1,0 +1,13 @@
+id,nombre,categoria,precio,stock,imagen
+1,Camiseta Básica,Ropa,15990,50,👕
+2,Pantalón Jeans,Ropa,39990,30,👖
+3,Zapatillas Running,Calzado,59990,20,👟
+4,Mochila Urbana,Accesorios,29990,40,🎒
+5,Gorra Deportiva,Accesorios,12990,60,🧢
+6,Chaqueta Impermeable,Ropa,79990,15,🧥
+7,Calcetines Pack x3,Ropa,7990,100,🧦
+8,Cinturón Cuero,Accesorios,19990,25,👜
+9,Zapatillas Casual,Calzado,45990,35,👞
+10,Bolso Tote,Accesorios,24990,19,👝
+11,Polera Manga Larga,Ropa,22990,45,👔
+12,Botas Invierno,Calzado,89990,9,🥾
