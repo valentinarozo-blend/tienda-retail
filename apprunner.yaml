@@ -8,8 +8,4 @@ run:
   command: streamlit run Tienda_Retail.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true
   network:
     port: 8080
-  env:
-    - name: STREAMLIT_SERVER_HEADLESS
-      value: "true"
-    - name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
-      value: "false"
+    env: PORT
