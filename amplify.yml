@@ -8,18 +8,25 @@ frontend:
 
     build:
       commands:
-        # Usar variable o fallback hardcodeado
-        - REGION=${APP_REGION:-us-east-1}
-        - ACCOUNT=${APP_ACCOUNT_ID:-526156223487}
-        - SERVICE=${APPRUNNER_SERVICE_NAME:-tienda-retail-app}
-        - echo "Region = $REGION"
-        - echo "Account = $ACCOUNT"
+        - REGION=us-east-1
+        - ACCOUNT=526156223487
+        - SERVICE=tienda-retail-app
+        - CONNECTION_ARN=arn:aws:apprunner:us-east-1:526156223487:connection/tienda-retail-github/c69bbf86197b4cffbdb803ffdee4732f
+        - INSTANCE_ROLE=arn:aws:iam::526156223487:role/tienda-retail-apprunner-role
+        - COGNITO_POOL=${COGNITO_USER_POOL_ID:-us-east-1_jWFa9P311}
+        - COGNITO_CLIENT=${COGNITO_APP_CLIENT_ID:-cu9hjaqp0voj9ukd26pa4aldi}
+        - DYNAMO_PEDIDOS=${DYNAMO_TABLE_PEDIDOS:-tienda-retail-pedidos}
+        - DYNAMO_PRODUCTOS=${DYNAMO_TABLE_PRODUCTOS:-tienda-retail-productos}
+        - S3_BUCKET=${S3_BUCKET_COMPROBANTES:-tienda-retail-comprobantes}
+        - echo "Verificando servicio App Runner..."
         - SERVICE_ARN=$(aws apprunner list-services --region $REGION --query "ServiceSummaryList[?ServiceName=='$SERVICE'].ServiceArn" --output text)
         - echo "Service ARN = $SERVICE_ARN"
         - >
           if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
-            aws apprunner create-service --service-name $SERVICE --source-configuration "{\"CodeRepository\":{\"RepositoryUrl\":\"https://github.com/valentinarozo-blend/tienda-retail\",\"SourceCodeVersion\":{\"Type\":\"BRANCH\",\"Value\":\"main\"},\"CodeConfiguration\":{\"ConfigurationSource\":\"API\",\"CodeConfigurationValues\":{\"Runtime\":\"PYTHON_3\",\"BuildCommand\":\"pip install -r requirements.txt\",\"StartCommand\":\"streamlit run Tienda_Retail.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true\",\"Port\":\"8080\",\"RuntimeEnvironmentVariables\":{\"AWS_REGION\":\"$REGION\",\"COGNITO_USER_POOL_ID\":\"$COGNITO_USER_POOL_ID\",\"COGNITO_APP_CLIENT_ID\":\"$COGNITO_APP_CLIENT_ID\",\"DYNAMO_TABLE_PEDIDOS\":\"$DYNAMO_TABLE_PEDIDOS\",\"DYNAMO_TABLE_PRODUCTOS\":\"$DYNAMO_TABLE_PRODUCTOS\",\"S3_BUCKET_COMPROBANTES\":\"$S3_BUCKET_COMPROBANTES\"}}}},\"AutoDeploymentsEnabled\":true,\"AuthenticationConfiguration\":{\"ConnectionArn\":\"$APPRUNNER_CONNECTION_ARN\"}}" --instance-configuration "{\"Cpu\":\"1 vCPU\",\"Memory\":\"2 GB\",\"InstanceRoleArn\":\"$APPRUNNER_INSTANCE_ROLE_ARN\"}" --region $REGION;
+            echo "Creando servicio App Runner...";
+            aws apprunner create-service --service-name $SERVICE --region $REGION --source-configuration "{\"CodeRepository\":{\"RepositoryUrl\":\"https://github.com/valentinarozo-blend/tienda-retail\",\"SourceCodeVersion\":{\"Type\":\"BRANCH\",\"Value\":\"main\"},\"CodeConfiguration\":{\"ConfigurationSource\":\"API\",\"CodeConfigurationValues\":{\"Runtime\":\"PYTHON_3\",\"BuildCommand\":\"pip install -r requirements.txt\",\"StartCommand\":\"streamlit run Tienda_Retail.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true\",\"Port\":\"8080\",\"RuntimeEnvironmentVariables\":{\"AWS_REGION\":\"$REGION\",\"COGNITO_USER_POOL_ID\":\"$COGNITO_POOL\",\"COGNITO_APP_CLIENT_ID\":\"$COGNITO_CLIENT\",\"DYNAMO_TABLE_PEDIDOS\":\"$DYNAMO_PEDIDOS\",\"DYNAMO_TABLE_PRODUCTOS\":\"$DYNAMO_PRODUCTOS\",\"S3_BUCKET_COMPROBANTES\":\"$S3_BUCKET\"}}}},\"AutoDeploymentsEnabled\":true,\"AuthenticationConfiguration\":{\"ConnectionArn\":\"$CONNECTION_ARN\"}}" --instance-configuration "{\"Cpu\":\"1 vCPU\",\"Memory\":\"2 GB\",\"InstanceRoleArn\":\"$INSTANCE_ROLE\"}";
           else
+            echo "Actualizando servicio existente...";
             aws apprunner start-deployment --service-arn $SERVICE_ARN --region $REGION;
           fi
 
