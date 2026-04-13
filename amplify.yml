@@ -22,21 +22,29 @@ frontend:
 
     postBuild:
       commands:
-        - SERVICE_ARN=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='tienda-retail-app'].ServiceArn" --output text)
-        - SERVICE_STATUS=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='tienda-retail-app'].Status" --output text)
-        - echo "ARN=$SERVICE_ARN STATUS=$SERVICE_STATUS"
+        # Registrar task definition
+        - aws ecs register-task-definition --cli-input-json file://infra/ecs_task_definition.json --region us-east-1
+        # Crear o actualizar servicio ECS
+        - SERVICE_EXISTS=$(aws ecs describe-services --cluster tienda-retail --services tienda-retail-svc --region us-east-1 --query "services[?status=='ACTIVE'].serviceName" --output text)
         - |
-          if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
-            echo "Creando servicio nuevo..."
-            aws apprunner create-service --service-name tienda-retail-app --region us-east-1 --source-configuration file://infra/apprunner_ecr_config.json --instance-configuration file://infra/apprunner_instance_config.json
-          elif [ "$SERVICE_STATUS" = "RUNNING" ]; then
-            echo "Desplegando en servicio existente..."
-            aws apprunner start-deployment --service-arn $SERVICE_ARN --region us-east-1
+          if [ -z "$SERVICE_EXISTS" ]; then
+            echo "Creando servicio ECS..."
+            aws ecs create-service \
+              --cluster tienda-retail \
+              --service-name tienda-retail-svc \
+              --task-definition tienda-retail-task \
+              --desired-count 1 \
+              --launch-type FARGATE \
+              --network-configuration "awsvpcConfiguration={subnets=[subnet-06ea41d67cfbd0f82,subnet-0f3f30409934e562c],securityGroups=[sg-067ae256078c18fc1],assignPublicIp=ENABLED}" \
+              --region us-east-1
           else
-            echo "Servicio en estado $SERVICE_STATUS, eliminando y recreando..."
-            aws apprunner delete-service --service-arn $SERVICE_ARN --region us-east-1
-            sleep 90
-            aws apprunner create-service --service-name tienda-retail-app --region us-east-1 --source-configuration file://infra/apprunner_ecr_config.json --instance-configuration file://infra/apprunner_instance_config.json
+            echo "Actualizando servicio ECS..."
+            aws ecs update-service \
+              --cluster tienda-retail \
+              --service tienda-retail-svc \
+              --task-definition tienda-retail-task \
+              --force-new-deployment \
+              --region us-east-1
           fi
 
   artifacts:

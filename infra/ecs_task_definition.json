@@ -1,0 +1,39 @@
+{
+  "family": "tienda-retail-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::526156223487:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::526156223487:role/tienda-retail-apprunner-role",
+  "containerDefinitions": [
+    {
+      "name": "tienda-retail",
+      "image": "526156223487.dkr.ecr.us-east-1.amazonaws.com/tienda-retail:latest",
+      "portMappings": [
+        {
+          "containerPort": 8501,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {"name": "AWS_REGION",               "value": "us-east-1"},
+        {"name": "COGNITO_USER_POOL_ID",     "value": "us-east-1_jWFa9P311"},
+        {"name": "COGNITO_APP_CLIENT_ID",    "value": "cu9hjaqp0voj9ukd26pa4aldi"},
+        {"name": "DYNAMO_TABLE_PEDIDOS",     "value": "tienda-retail-pedidos"},
+        {"name": "DYNAMO_TABLE_PRODUCTOS",   "value": "tienda-retail-productos"},
+        {"name": "S3_BUCKET_COMPROBANTES",   "value": "tienda-retail-comprobantes"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/tienda-retail",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      },
+      "essential": true
+    }
+  ]
+}
