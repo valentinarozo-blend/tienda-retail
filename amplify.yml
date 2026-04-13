@@ -4,8 +4,9 @@ frontend:
     preBuild:
       commands:
         # Instalar Docker en Amazon Linux (Amplify)
-        - yum install -y docker
-        - service docker start
+        - sudo yum install -y docker
+        - sudo service docker start
+        - sudo chmod 666 /var/run/docker.sock
         - docker --version
         # Login ECR
         - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 526156223487.dkr.ecr.us-east-1.amazonaws.com
