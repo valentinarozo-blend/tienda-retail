@@ -8,5 +8,5 @@ enableWebsocketCompression = false
 
 [browser]
 gatherUsageStats = false
-serverAddress = "rwps3tcc8n.us-east-1.awsapprunner.com"
+serverAddress = "tienda-retail.pocs.cni.ia.blend360.com"
 serverPort = 443
