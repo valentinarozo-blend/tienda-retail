@@ -1,0 +1,21 @@
+{
+  "ImageRepository": {
+    "ImageIdentifier": "526156223487.dkr.ecr.us-east-1.amazonaws.com/tienda-retail:latest",
+    "ImageConfiguration": {
+      "Port": "8501",
+      "RuntimeEnvironmentVariables": {
+        "AWS_REGION":               "us-east-1",
+        "COGNITO_USER_POOL_ID":     "us-east-1_jWFa9P311",
+        "COGNITO_APP_CLIENT_ID":    "cu9hjaqp0voj9ukd26pa4aldi",
+        "DYNAMO_TABLE_PEDIDOS":     "tienda-retail-pedidos",
+        "DYNAMO_TABLE_PRODUCTOS":   "tienda-retail-productos",
+        "S3_BUCKET_COMPROBANTES":   "tienda-retail-comprobantes"
+      }
+    },
+    "ImageRepositoryType": "ECR"
+  },
+  "AutoDeploymentsEnabled": false,
+  "AuthenticationConfiguration": {
+    "AccessRoleArn": "arn:aws:iam::526156223487:role/AppRunnerECRRole"
+  }
+}
