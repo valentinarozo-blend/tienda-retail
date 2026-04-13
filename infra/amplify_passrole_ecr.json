@@ -1,0 +1,13 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": [
+        "arn:aws:iam::526156223487:role/AppRunnerECRRole",
+        "arn:aws:iam::526156223487:role/tienda-retail-apprunner-role"
+      ]
+    }
+  ]
+}
