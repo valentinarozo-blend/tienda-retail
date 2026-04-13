@@ -9,7 +9,7 @@ frontend:
         - sudo chmod 666 /var/run/docker.sock
         - docker --version
         - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 526156223487.dkr.ecr.us-east-1.amazonaws.com
-        - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+        - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws || true
         - aws ecr describe-repositories --repository-names tienda-retail --region us-east-1 2>/dev/null || aws ecr create-repository --repository-name tienda-retail --region us-east-1
 
     build:
