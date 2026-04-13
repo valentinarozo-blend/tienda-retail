@@ -2,8 +2,10 @@ version: 1.0
 runtime: python311
 build:
   commands:
+    pre-build:
+      - pip install --upgrade pip setuptools wheel
     build:
-      - pip install -r requirements.txt
+      - pip install streamlit pandas boto3 pydeck
 run:
   command: streamlit run Tienda_Retail.py --server.port=8080 --server.address=0.0.0.0 --server.headless=true
   network:
