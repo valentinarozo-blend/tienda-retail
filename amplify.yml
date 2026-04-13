@@ -21,13 +21,21 @@ frontend:
 
     postBuild:
       commands:
-        - ECR_URI=526156223487.dkr.ecr.us-east-1.amazonaws.com/tienda-retail
         - SERVICE_ARN=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='tienda-retail-app'].ServiceArn" --output text)
+        - SERVICE_STATUS=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='tienda-retail-app'].Status" --output text)
+        - echo "ARN=$SERVICE_ARN STATUS=$SERVICE_STATUS"
         - |
           if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
+            echo "Creando servicio nuevo..."
             aws apprunner create-service --service-name tienda-retail-app --region us-east-1 --source-configuration file://infra/apprunner_ecr_config.json --instance-configuration file://infra/apprunner_instance_config.json
-          else
+          elif [ "$SERVICE_STATUS" = "RUNNING" ]; then
+            echo "Desplegando en servicio existente..."
             aws apprunner start-deployment --service-arn $SERVICE_ARN --region us-east-1
+          else
+            echo "Servicio en estado $SERVICE_STATUS, eliminando y recreando..."
+            aws apprunner delete-service --service-arn $SERVICE_ARN --region us-east-1
+            sleep 90
+            aws apprunner create-service --service-name tienda-retail-app --region us-east-1 --source-configuration file://infra/apprunner_ecr_config.json --instance-configuration file://infra/apprunner_instance_config.json
           fi
 
   artifacts:
