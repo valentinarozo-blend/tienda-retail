@@ -3,29 +3,25 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Instalar y arrancar Docker sin systemd (Amplify sandbox)
         - sudo yum install -y docker
         - sudo dockerd &
         - sleep 5
         - sudo chmod 666 /var/run/docker.sock
         - docker --version
-        # Login ECR
         - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 526156223487.dkr.ecr.us-east-1.amazonaws.com
-        # Crear repo ECR si no existe
         - aws ecr describe-repositories --repository-names tienda-retail --region us-east-1 2>/dev/null || aws ecr create-repository --repository-name tienda-retail --region us-east-1
 
     build:
       commands:
-        - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
         - ECR_URI=526156223487.dkr.ecr.us-east-1.amazonaws.com/tienda-retail
+        - IMAGE_TAG=$(date +%Y%m%d%H%M%S)
         - docker build -t $ECR_URI:$IMAGE_TAG -t $ECR_URI:latest .
         - docker push $ECR_URI:$IMAGE_TAG
         - docker push $ECR_URI:latest
-        - echo "IMAGE=$ECR_URI:latest" > deploy.env
 
     postBuild:
       commands:
-        - source deploy.env
+        - ECR_URI=526156223487.dkr.ecr.us-east-1.amazonaws.com/tienda-retail
         - SERVICE_ARN=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='tienda-retail-app'].ServiceArn" --output text)
         - |
           if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
@@ -37,4 +33,4 @@ frontend:
   artifacts:
     baseDirectory: .
     files:
-      - deploy.env
+      - "**/*"
