@@ -4,12 +4,14 @@ address = "0.0.0.0"
 headless = true
 enableCORS = false
 enableXsrfProtection = false
+enableWebsocketCompression = false
 
 [browser]
 gatherUsageStats = false
+serverAddress = "0.0.0.0"
 
 [theme]
-primaryColor = "#FF4B4B"
+primaryColor = "#e94560"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F0F2F6"
 textColor = "#262730"
