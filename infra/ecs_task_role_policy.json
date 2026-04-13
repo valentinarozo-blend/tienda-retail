@@ -1,0 +1,25 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["dynamodb:PutItem","dynamodb:GetItem","dynamodb:Scan","dynamodb:UpdateItem","dynamodb:BatchWriteItem"],
+      "Resource": ["arn:aws:dynamodb:us-east-1:526156223487:table/tienda-retail-pedidos","arn:aws:dynamodb:us-east-1:526156223487:table/tienda-retail-productos"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:PutObject","s3:GetObject","s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::tienda-retail-comprobantes","arn:aws:s3:::tienda-retail-comprobantes/*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel"],
+      "Resource": "arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-pro-v1:0"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["cognito-idp:InitiateAuth","cognito-idp:GetUser","cognito-idp:SignUp","cognito-idp:AdminConfirmSignUp"],
+      "Resource": "arn:aws:cognito-idp:us-east-1:526156223487:userpool/us-east-1_jWFa9P311"
+    }
+  ]
+}
