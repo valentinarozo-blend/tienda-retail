@@ -1,0 +1,5 @@
+{
+  "Cpu": "1 vCPU",
+  "Memory": "2 GB",
+  "InstanceRoleArn": "arn:aws:iam::526156223487:role/tienda-retail-apprunner-role"
+}
