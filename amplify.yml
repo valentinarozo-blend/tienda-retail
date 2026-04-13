@@ -35,7 +35,7 @@ frontend:
               --task-definition tienda-retail-task \
               --desired-count 1 \
               --launch-type FARGATE \
-              --network-configuration "awsvpcConfiguration={subnets=[subnet-06ea41d67cfbd0f82,subnet-0f3f30409934e562c],securityGroups=[sg-067ae256078c18fc1],assignPublicIp=ENABLED}" \
+              --network-configuration "awsvpcConfiguration={subnets=[subnet-06ea41d67cfbd0f82,subnet-0f3f30409934e562c],securityGroups=[sg-05b0133788d51eb81],assignPublicIp=ENABLED}" \
               --region us-east-1
           else
             echo "Actualizando servicio ECS..."
