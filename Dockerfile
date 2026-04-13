@@ -22,8 +22,8 @@ ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 ENV STREAMLIT_SERVER_ENABLE_CORS=false
 ENV STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
 ENV STREAMLIT_SERVER_ENABLE_WEBSOCKET_COMPRESSION=false
-ENV STREAMLIT_BROWSER_SERVER_ADDRESS=0.0.0.0
-ENV STREAMLIT_BROWSER_SERVER_PORT=8501
+ENV STREAMLIT_BROWSER_SERVER_ADDRESS=pocs.cni.ia.blend360.com
+ENV STREAMLIT_BROWSER_SERVER_PORT=443
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8501/_stcore/health || exit 1
@@ -35,5 +35,5 @@ CMD ["streamlit", "run", "Tienda_Retail.py", \
      "--server.enableCORS=false", \
      "--server.enableXsrfProtection=false", \
      "--server.enableWebsocketCompression=false", \
-     "--browser.serverAddress=0.0.0.0", \
-     "--browser.serverPort=8501"]
+     "--browser.serverAddress=pocs.cni.ia.blend360.com", \
+     "--browser.serverPort=443"]
