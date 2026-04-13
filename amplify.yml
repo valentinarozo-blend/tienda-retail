@@ -3,8 +3,9 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Instalar Docker en el entorno Amplify Large
-        - curl -fsSL https://get.docker.com | sh
+        # Instalar Docker en Amazon Linux (Amplify)
+        - yum install -y docker
+        - service docker start
         - docker --version
         # Login ECR
         - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 526156223487.dkr.ecr.us-east-1.amazonaws.com
