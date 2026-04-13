@@ -3,9 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Instalar Docker en Amazon Linux (Amplify)
+        # Instalar y arrancar Docker sin systemd (Amplify sandbox)
         - sudo yum install -y docker
-        - sudo systemctl start docker
+        - sudo dockerd &
+        - sleep 5
         - sudo chmod 666 /var/run/docker.sock
         - docker --version
         # Login ECR
