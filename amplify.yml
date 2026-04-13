@@ -5,7 +5,7 @@ frontend:
       commands:
         # Instalar Docker en Amazon Linux (Amplify)
         - sudo yum install -y docker
-        - sudo service docker start
+        - sudo systemctl start docker
         - sudo chmod 666 /var/run/docker.sock
         - docker --version
         # Login ECR
