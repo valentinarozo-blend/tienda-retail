@@ -22,6 +22,11 @@ ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 ENV STREAMLIT_SERVER_ENABLE_CORS=false
 ENV STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
 ENV STREAMLIT_SERVER_ENABLE_WEBSOCKET_COMPRESSION=false
+ENV STREAMLIT_BROWSER_SERVER_ADDRESS=0.0.0.0
+ENV STREAMLIT_BROWSER_SERVER_PORT=8501
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8501/_stcore/health || exit 1
 
 CMD ["streamlit", "run", "Tienda_Retail.py", \
      "--server.port=8501", \
@@ -29,4 +34,6 @@ CMD ["streamlit", "run", "Tienda_Retail.py", \
      "--server.headless=true", \
      "--server.enableCORS=false", \
      "--server.enableXsrfProtection=false", \
-     "--server.enableWebsocketCompression=false"]
+     "--server.enableWebsocketCompression=false", \
+     "--browser.serverAddress=0.0.0.0", \
+     "--browser.serverPort=8501"]
