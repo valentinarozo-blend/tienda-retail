@@ -79,7 +79,7 @@ def mapa_sedes(sedes: list, sede_activa_nombre: str = None, zoom: int = 11) -> p
         layers=[capa_columnas, capa_texto],
         initial_view_state=vista,
         tooltip={"text": "📍 {nombre}\n{dir}"},
-        map_style="mapbox://styles/mapbox/dark-v11",
+        map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
     )
 
 
@@ -162,7 +162,7 @@ def mapa_sede_cercana(sedes: list, user_lat: float, user_lon: float) -> pdk.Deck
         layers=[capa_arco, capa_cols, capa_texto],
         initial_view_state=vista,
         tooltip={"text": "{nombre}"},
-        map_style="mapbox://styles/mapbox/dark-v11",
+        map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
     )
 
 
@@ -253,5 +253,5 @@ def mapa_ruta_envio(user_lat: float, user_lon: float, sede_lat: float, sede_lon:
         layers=[capa_ruta, capa_cols, capa_texto],
         initial_view_state=vista,
         tooltip={"text": "{nombre}"},
-        map_style="mapbox://styles/mapbox/dark-v11",
+        map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
     )
