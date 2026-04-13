@@ -5,15 +5,8 @@ headless = true
 enableCORS = false
 enableXsrfProtection = false
 enableWebsocketCompression = false
-maxUploadSize = 50
 
 [browser]
 gatherUsageStats = false
-serverAddress = "0.0.0.0"
-serverPort = 8501
-
-[theme]
-primaryColor = "#e94560"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F2F6"
-textColor = "#262730"
+serverAddress = "rwps3tcc8n.us-east-1.awsapprunner.com"
+serverPort = 443
