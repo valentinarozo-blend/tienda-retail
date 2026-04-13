@@ -1,0 +1,9 @@
+[
+  {
+    "username": "admin",
+    "password": "admin123",
+    "nombre": "Administrador",
+    "email": "admin@tienda.cl",
+    "rol": "admin"
+  }
+]

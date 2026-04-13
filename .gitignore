@@ -10,5 +10,4 @@ build/
 image_uri.env
 
 # Datos sensibles — no subir al repo
-data/usuarios.json
 data/pedidos.json
